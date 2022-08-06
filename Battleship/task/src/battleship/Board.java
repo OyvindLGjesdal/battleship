@@ -13,12 +13,13 @@ public class Board {
     final Pattern PLACED_MATCHER = Pattern.compile("O");
     final Pattern REGEX_BOAT = Pattern.compile("[XO]");
     final Pattern SEA_MATCHER = Pattern.compile("[~M]");
+    String playerName;
 
 
     int board_hits = 17;
 
         Scanner scanner = new Scanner(System.in);
-        String[][] board = {
+        public String[][] board = {
 
                 // Horizontal numbered 1-10,Vertical A-J. Input starts with Vertical (F3)
                 {"~", "~", "~", "~", "~", "~", "~", "~", "~", "~",},
@@ -33,7 +34,10 @@ public class Board {
                 {"~", "~", "~", "~", "~", "~", "~", "~", "~", "~",}
         };
 
-        public Board() {
+        public Board(String name) {
+            this.playerName = name;
+            System.out.printf("%s, place your ships on the game field\n",name);
+            printBoard();
             placeCoords(Ship.AIRCRAFT_CARRIER);
             placeCoords(Ship.BATTLESHIP);
             placeCoords(Ship.SUBMARINE);
@@ -41,6 +45,7 @@ public class Board {
             placeCoords(Ship.DESTROYER);
 
         }
+
         void placeCoords(Ship ship) {
             System.out.println(ship.requestCoords());
             System.out.print("> ");
@@ -96,7 +101,7 @@ public class Board {
             for (int j = 1; j <= 10; j++) {
                 for (int i = 'A'; i <= 'J'; i++) {
                     if (j >= min_number && j <= max_number && i >= min_letter && i <= max_letter) {
-                        board[i - board_offset][j - 1] = PLACED;
+                        this.board[i - board_offset][j - 1] = PLACED;
                     }
                 }
             }
@@ -106,7 +111,8 @@ public class Board {
     void printBoard() {
             printBoard(false);
     }
-        void printBoard(boolean fog) {
+
+    void printBoard(boolean fog) {
           //  System.out.println();
             System.out.println("  1 2 3 4 5 6 7 8 9 10");
             for (int i = 0; i <= board.length - 1; i++) {
@@ -119,16 +125,21 @@ public class Board {
             }
         }
 
-    void aim() {
+
+    void aim(Board opponentBoard) {
             String regex = "^([A-J])([1-9]|10)$";
             String msg;
+            this.printBoard(true);
+            System.out.println("---------------------");
+            opponentBoard.printBoard();
+            System.out.printf("\n%s, it's your turn: \n\n",opponentBoard.playerName);
             System.out.print("> ");
             String target  = scanner.nextLine();
             System.out.println();
 
             if (!target.matches(regex))
             { System.out.println("Error! You entered the wrong coordinates! Try again:\n");
-            aim();
+            aim(opponentBoard);
             return;
             }
             int letterIndex = target.substring(0,1).charAt(0)-board_offset;
@@ -137,9 +148,9 @@ public class Board {
             if (board[letterIndex][numberIndex].equals(PLACED)) {
                 board[letterIndex][numberIndex] = HIT;
 
-               msg = "You hit a ship! Try again:\n";
+               msg = "You hit a ship!\n";
                board_hits--;
-               if (sink(letterIndex,numberIndex)) {msg = "You sank a ship! Try again:\n";};
+               if (sink(letterIndex,numberIndex)) {msg = "You sank a ship!:\n";};
 
             }
             else if (board[letterIndex][numberIndex].equals(HIT)) {
@@ -152,7 +163,16 @@ public class Board {
             printBoard(true);
             if (board_hits == 0)
                 msg = "You sank the last ship. You won. Congratulations";
-            System.out.printf("%s\n",msg);
+
+
+            String enter = "full";
+            while (!enter.isEmpty()) {
+                System.out.printf("%s\nPress Enter and pass the move to another player\n",msg);
+                enter = scanner.nextLine();
+
+            }
+
+
 
         }
         private boolean sink(int letter, int number) {

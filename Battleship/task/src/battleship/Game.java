@@ -6,12 +6,13 @@ public class Game {
     }
 
     private  void start(Board[] boards) {
-        System.out.println("\nThe game starts!\n");
-        boards[0].printBoard(true);
-        System.out.println("\nTake a shot!\n");
-        while (boards[0].board_hits > 0) {
+        //System.out.println("\nThe game starts!\n");
 
-                boards[0].aim();
+        while (boards[0].board_hits > 0 && boards[1].board_hits > 0) {
+                boards[1].aim(boards[0]);
+                boards[0].aim(boards[1]);
+
+            //boards[1].aim();
         }
 
     }
